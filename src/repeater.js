@@ -1,6 +1,6 @@
 import * as _ from "lodash";
 import * as Rx from "rxjs";
-import { takeUntil } from "rxjs/operators";
+import {takeUntil, onErrorResumeNext} from "rxjs/operators";
 
 class Repeater {
   constructor(target, options?, handler?) {
@@ -38,15 +38,13 @@ class Repeater {
       this.repeater = Rx.merge(timer$, this.fetchTrigger)
         .pipe(takeUntil(this.stopTrigger))
         .subscribe(() => {
-          if (this.isPause || this.isNotResponse) {
-            return;
-          }
+            if (this.isPause || this.isNotResponse) {
+              return;
+            }
+            this.tick += 1;
 
-          this.tick += 1;
-
-          this.isNotResponse = true;
-          this.target.subscribe(data => {
-            try {
+            this.isNotResponse = true;
+            this.target.subscribe(data => {
               this.isNotResponse = false;
 
               if (this.successHandler) {
@@ -54,15 +52,15 @@ class Repeater {
               } else {
                 this.onSuccess$.next(data);
               }
-            } catch (err) {
+            }, err => {
               if (this.failureHandler) {
                 this.onError$.next(this.failureHandler(err));
               } else {
                 this.onError$.next(err);
               }
-            }
-          });
-        });
+            })
+          }
+        );
     }
   }
 
@@ -108,6 +106,10 @@ class Repeater {
 
   setInterval(interval) {
     this.interval = interval;
+  }
+
+  getTick() {
+    return this.tick;
   }
 }
 
