@@ -66,6 +66,49 @@ describe("core test", () => {
     });
   });
 
+
+  test("on error", () => {
+    const arr = [1, 2, 3, 4, 5];
+    const target = Rx.from(arr)
+      .pipe(map((val) => {
+        if (val > 3) {
+          throw 'error';
+        } else {
+          return val;
+        }
+        return val;
+      }));
+
+    const repeater = new Repeater(target);
+    repeater.onError$.subscribe(err => {
+      expect(repeater.tick).to('error');
+    });
+  });
+
+  test("onError handler test", () => {
+    const arr = [1];
+    const target = Rx.from(arr)
+      .pipe(map((val) => {
+        if (val > 3) {
+          throw 'e';
+        } else {
+          return val;
+        }
+        return val;
+      }));
+    const option = {};
+    const handler = {
+      errorHandler(data) {
+        return data + 'rror';
+      }
+    };
+
+    const repeater = new Repeater(target, option, handler);
+    repeater.onError$.subscribe(error => {
+      expect(data).toBe(2);
+    });
+  });
+
   test("get data test", async () => {
     let counter = 0;
     const targetObservable = Rx.Observable.create(observer => {
