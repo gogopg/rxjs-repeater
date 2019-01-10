@@ -1,7 +1,7 @@
 {
   "name": "rxjs-repeater",
-  "version": "0.0.1",
-  "description": "Utility for continuously repeating observables from rxjs",
+  "version": "0.0.3",
+  "description": "Utility for continuously repeating the observables of rxjs",
   "license": "MIT",
   "repository": "gogopg/rxjs-repeater",
   "main": "dist/index.js",

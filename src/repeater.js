@@ -1,6 +1,6 @@
 import * as _ from "lodash";
 import * as Rx from "rxjs";
-import {takeUntil, onErrorResumeNext} from "rxjs/operators";
+import {takeUntil} from "rxjs/operators";
 
 class Repeater {
   constructor(target, options?, handler?) {
@@ -53,6 +53,8 @@ class Repeater {
                 this.onSuccess$.next(data);
               }
             }, err => {
+              this.isNotResponse = false;
+
               if (this.failureHandler) {
                 this.onError$.next(this.failureHandler(err));
               } else {
