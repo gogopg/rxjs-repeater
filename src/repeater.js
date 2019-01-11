@@ -122,6 +122,10 @@ class Repeater {
     return this.tick;
   }
 
+  changeTarget(target) {
+    this.target = target;
+  }
+
   getCache() {
     return this.cache;
   }
