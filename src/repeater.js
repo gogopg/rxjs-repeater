@@ -1,6 +1,6 @@
 import * as _ from "lodash";
 import * as Rx from "rxjs";
-import {takeUntil} from "rxjs/operators";
+import { takeUntil } from "rxjs/operators";
 
 class Repeater {
   constructor(target, options?, handler?) {
@@ -38,21 +38,27 @@ class Repeater {
       this.repeater = Rx.merge(timer$, this.fetchTrigger)
         .pipe(takeUntil(this.stopTrigger))
         .subscribe(() => {
-            if (this.isPause || this.isNotResponse) {
-              return;
-            }
-            this.tick += 1;
+          if (this.isPause || this.isNotResponse) {
+            return;
+          }
+          this.tick += 1;
 
-            this.isNotResponse = true;
-            this.target.subscribe(data => {
+          this.isNotResponse = true;
+          this.target.subscribe(
+            data => {
               this.isNotResponse = false;
+
+              if (this.enableCache) {
+                this.cache = data;
+              }
 
               if (this.successHandler) {
                 this.onSuccess$.next(this.successHandler(data));
               } else {
                 this.onSuccess$.next(data);
               }
-            }, err => {
+            },
+            err => {
               this.isNotResponse = false;
 
               if (this.failureHandler) {
@@ -60,9 +66,9 @@ class Repeater {
               } else {
                 this.onError$.next(err);
               }
-            })
-          }
-        );
+            }
+          );
+        });
     }
   }
 
@@ -100,10 +106,12 @@ class Repeater {
   }
 
   async getData() {
-    return await this.target.toPromise().then(d => {
+    const result = await this.target.toPromise().then(d => {
       this.onSuccess$.next(d);
       return Promise.resolve(d);
     });
+
+    return result;
   }
 
   setInterval(interval) {
@@ -112,6 +120,10 @@ class Repeater {
 
   getTick() {
     return this.tick;
+  }
+
+  getCache() {
+    return this.cache;
   }
 }
 
